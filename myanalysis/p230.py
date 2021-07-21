@@ -1,105 +1,50 @@
-import csv
-import numpy as np;
-import matplotlib.pyplot as plt;
+# import csv
+# import numpy as np;
+# import pandas as pd;
+# import seaborn as sns;
+# import matplotlib;
+# import matplotlib.pyplot as plt;
+# import plotly.express as px;
+# from plotly.offline import iplot;
+# import plotly.graph_objs as go;
+# from plotly import tools;
+
 
 from config.settings import DATA_DIRS
 
 
 class P230:
-    def p248(self, loc):
-        f = open(DATA_DIRS[0]+'\\age2.csv');
-        data = csv.reader(f);
-        next(data);
-        data = list(data);
+    def M(request):
+        import pandas as pd
+        import numpy as np;
+        import seaborn as sns
+        import matplotlib.pyplot as plt
 
-        home = None;
-        home2 = None;
-        # 신도림의 연령 별 비율
-        for row in data:
-            if loc in row[0]:
-                home = np.array(row[3:],dtype=int);
-                home2 = home / int(row[2].replace(',',''));
-                #[0.2 0.3 0.4 .........]
-        # 모든 지역의 연령 별 비율을 구한다.
-        min = 999;
-        result_name = '';
-        result = None;
-        for row in data:
-            away = np.array(row[3:],dtype=int);
-            away2 = away / int(row[2].replace(',',''));
-            s = np.sum(np.abs(home2 - away2));
-            if loc not in row[0] and s < min:
-                min = s;
-                result_name = row[0];
-                result = away2;
+        df = pd.read_csv('C:/project/data/MoviesOnStreamingPlatforms.csv');
+        df.drop(['Unnamed: 0', 'Type'], axis=1, inplace=True);
+        #print(df.head());
+        #print(df.tail());
 
-        print(loc);
-        print(home2.tolist());
-        print(result_name.split(' ')[1]);
-        print(result.tolist());
-        result = [{
-            'name': loc,
-            'data': home2.tolist()
-        },{
-            'name': result_name.split(' ')[1],
-            'data': result.tolist()
-        }];
-        return result;
+        # 컬럼별 type 확인 및 결측치 확인
+        #print(df.info());
+        #print(df.isnull().sum());
+
+        df['Rotten Tomatoes'] = df['Rotten Tomatoes'].str.replace('%', '');
+        #print(type(df['Rotten Tomatoes'].dtype));
+
+        df['Rotten Tomatoes'] = df['Rotten Tomatoes'].apply(pd.to_numeric)
+        #print(df.dtypes);
+
+        sns.set(font_scale=1.1);  ## 폰트사이즈 조절
+        sns.set_style('ticks');  ## 축 눈금 표시
+        data = df[['Runtime', 'Rotten Tomatoes', 'IMDb', 'Age', 'Year']];
+        sns.pairplot(data,
+                     diag_kind=None);
+        plt.show();
+        plt.savefig('./movies.png');
 
 
-    # 1. 서울시 영유아(5세이하)들이 가장 많이 사는 지역 구하시오
-    def p2311(self):
-        f = open(DATA_DIRS[0]+'\\age3.csv');
-        data = csv.reader(f);
-        next(data);
-        data = list(data);
-        result = [];
-        for row in data:
-            datas = [];
-            baby = np.array(row[3:9], dtype=int);
-            babys = int(np.sum(baby));
-            datas.append(row[0].split(' ')[1]);
-            datas.append(babys);
-            result.append(datas);
-        print(result);
-        return result;
-
-
-    # 2. 서울에서 5년간(18~20) 인구가 가능 많이 늘어난 구를 구하시오
-    #    연령구분 10세  0~100세 데이터 다운로드(전체시군구현황)
-    #    후 총 인구수로 계산
-    def p232(self):
-        # 2020
-        f = open(DATA_DIRS[0] + '\\age4.csv');
-        data = csv.reader(f);
-        next(data);
-        data = list(data);
-        # 2015
-        f2 = open(DATA_DIRS[0] + '\\age5.csv');
-        data2 = csv.reader(f2);
-        next(data2);
-        data2 = list(data2);
-
-        print(len(data));
-        print(len(data2));
-
-        locs = [];
-        datas = [];
-
-        for i in range(0, len(data)):
-            sub = int(data[i][27]) - int(data2[i][1]);
-            loc = data[i][0].split(' ')[1];
-            datas.append(sub);
-            locs.append(loc);
-
-
-        result = {
-            'locs':locs,
-            'datas':datas
-            };
-
-        return result;
 
 
 if __name__ == '__main__':
-    P230().p232();
+    P230().M();
